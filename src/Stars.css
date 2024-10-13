@@ -1,0 +1,71 @@
+.icon-clickable {
+    display: inline-block;
+    cursor: pointer; /* Show pointer on hover */
+    transition: transform 0.2s ease; /* Smooth scaling transition */
+    cursor: pointer;
+}
+
+.icon-clickable:hover {
+    transform: scale(1.2); /* Scale up on hover */
+}
+
+/* Keyframe animation for filling the star */
+@keyframes fillStar {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Keyframe animation for emptying the star */
+@keyframes emptyStar {
+    0% {
+        transform: scale(1);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(0.8);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Keyframe animation for half-filled star */
+@keyframes halfFillStar {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(0.8);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Apply animation for filled stars */
+.icon-clickable.filled {
+    animation: fillStar 0.5s forwards; /* Trigger fill animation */
+}
+
+/* Apply animation for half-filled stars */
+.icon-clickable.half-filled {
+    animation: halfFillStar 0.5s forwards; /* Trigger half-fill animation */
+}
+
+/* Apply animation for empty stars */
+.icon-clickable.empty {
+    animation: emptyStar 0.5s forwards; /* Trigger empty animation */
+}
