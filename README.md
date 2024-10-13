@@ -9,6 +9,14 @@ Install the package using
 npm install react-review-star
 ```
 
+#Requirements
+
+This package requires the installation of some FontAwesome libraries.
+
+```bash
+npm install @fortawesome/react-fontawesom @fortawesome/free-regular-svg-icons @fortawesome/free-solid-svg-icons
+```
+
 ## Usage
 
 ```Javascript
