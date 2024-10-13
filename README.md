@@ -40,5 +40,10 @@ export default App;
 
 ## Props
 
-| Prop Name | Values | Default |
-|:---------:|:------:|:-------:|
+| Prop Name | Values  | Default | Description |
+|:---:|:---:|:---:||:---:|
+| Value | numbers | 0 | The value to display with the stars must be between 0 and 5. The floating point is allowed. |
+| Color | string | #FFC308 | The color of the stars |
+| onValueChange | void | null | The function to update the value of the rating selected |
+| size | string | '2x' | The default value is set to 2x, but other values are available: 'lg' '2x' '3x' '4x' '5x' |
+
