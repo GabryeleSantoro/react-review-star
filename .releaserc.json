@@ -43,7 +43,8 @@
     [
       "@semantic-release/github",
       {
-        "labels": false
+        "labels": false,
+        "failComment": false
       }
     ]
   ]
