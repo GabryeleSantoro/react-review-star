@@ -1,11 +1,26 @@
-# react-review-star
+# @gabryelesantoro/react-review-star
 
 A small, accessible star rating component for React. It uses inline SVG (no icon font or extra icon packages), so your bundle stays lean.
 
+Published on the **public npm registry** and on **GitHub Packages** (same version).
+
 ## Installation
 
+**From npm (default):**
+
 ```bash
-npm install react-review-star
+npm install @gabryelesantoro/react-review-star
+```
+
+**From GitHub Packages** (configure scope + registry, then install as usual):
+
+```bash
+# one-time per project / machine — use a PAT with read:packages if the repo is private
+echo "@gabryelesantoro:registry=https://npm.pkg.github.com" >> .npmrc
+```
+
+```bash
+npm install @gabryelesantoro/react-review-star
 ```
 
 Requires **React 17+** as a peer dependency.
@@ -14,7 +29,7 @@ Requires **React 17+** as a peer dependency.
 
 ```jsx
 import React from 'react';
-import { Stars } from 'react-review-star';
+import { Stars } from '@gabryelesantoro/react-review-star';
 
 function App() {
   const [value, setValue] = React.useState(4);
@@ -55,7 +70,7 @@ export default App;
 The package exports **`DEFAULT_STAR_PATH`** and **`DEFAULT_STAR_VIEW_BOX`** so you can copy the default geometry or wrap it in your own assets.
 
 ```jsx
-import { Stars, DEFAULT_STAR_PATH, DEFAULT_STAR_VIEW_BOX } from 'react-review-star';
+import { Stars, DEFAULT_STAR_PATH, DEFAULT_STAR_VIEW_BOX } from '@gabryelesantoro/react-review-star';
 
 <Stars
   value={value}
@@ -86,4 +101,4 @@ The root element has the class `stars`. Useful CSS variables:
 - **`--stars-track`** — empty outline; default `#b0b8c4`, or set via `icon.emptyColor`.
 - **`--stars-gap`** — spacing between icons; default `0.2em`, or set via the `gap` prop.
 
-Remember to import the stylesheet: `import 'react-review-star/dist/index.css'`.
+Remember to import the stylesheet: `import '@gabryelesantoro/react-review-star/dist/index.css'`.
