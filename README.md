@@ -35,6 +35,8 @@ Without one of these, `npm publish` will fail or never run a real release.
 
 Until npm auth succeeds, you will **not** get a new tag or version, regardless of conventional commits.
 
+If `npm whoami` still returns **401** in Actions: confirm the secret is named exactly **`NPM_TOKEN`** under **Repository secrets** (not Variables), regenerate the token on npm (**Automation** or granular **Read and write** for this package), paste the full value once, and ensure the npm user owns `@gabryelesantoro` / the package. Repositories with **Issues disabled** no longer need a workaround for failure notifications — `.releaserc` sets `failComment: false` for `@semantic-release/github`.
+
 #### Perché dopo il merge su `main` non vedo tag né pacchetto npm (IT)
 
 Ci sono **due casi diversi**:
