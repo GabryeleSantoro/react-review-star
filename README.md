@@ -4,6 +4,21 @@ A small, accessible star rating component for React. It uses inline SVG (no icon
 
 Published on the **public npm registry** and on **GitHub Packages** (same version).
 
+### Automated releases (maintainers)
+
+Pushing or merging into **`main`** runs [semantic-release](https://semantic-release.gitbook.io/) in GitHub Actions. A **new tag and npm version are created only if** there is at least one **releasable** commit since the last tag, in [Conventional Commits](https://www.conventionalcommits.org/) form:
+
+| Commit type | Release |
+| --- | --- |
+| `feat:` | minor bump |
+| `fix:`, `perf:`, `revert:` | patch bump |
+| `feat!:` or `BREAKING CHANGE:` | major bump |
+| `chore:`, `docs:`, `test:`, … | **no** new version |
+
+So a merge from `dev` → `main` **does nothing** if every commit on `dev` since the last tag was only `chore:` / `docs:` / etc. **Squash merges** only keep one commit: that commit’s message must be releasable (e.g. `feat: add stars`). Ensure the repo has a valid **`NPM_TOKEN`** secret for publishing.
+
+If a push did not start the workflow, open **Actions → Release → Run workflow**. For failures, open the run log; common causes are missing `NPM_TOKEN` or no `feat`/`fix`/… commits in range.
+
 ## Installation
 
 **From npm (default):**

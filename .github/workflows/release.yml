@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch: # run manually from Actions if a push did not trigger release
 
 permissions:
   contents: write
@@ -14,8 +15,9 @@ permissions:
 
 jobs:
   release:
-    # Avoid re-running release when semantic-release pushes the version commit ([skip ci])
-    if: ${{ github.event.head_commit && !contains(github.event.head_commit.message, '[skip ci]') }}
+    # Skip only when the pushed tip commit is the semantic-release bot commit ([skip ci]).
+    # head_commit can be null on some push payloads; if so, still run (do not skip the whole job).
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.head_commit == null || !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
