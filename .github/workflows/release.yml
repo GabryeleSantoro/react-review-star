@@ -29,14 +29,39 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: "lts/*"
+          registry-url: https://registry.npmjs.org
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Install dependencies
         run: npm clean-install
 
-      - name: Release
+      - name: Explain npm auth (npmjs.org)
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "${NPM_TOKEN:-}" ]; then
+            echo "::notice::Secret NPM_TOKEN is empty. semantic-release will try OpenID Connect (Trusted Publishing) with npm. If publishing fails, create an npm **Automation** token and add it as NPM_TOKEN, or enable Trusted Publishers for this repo at https://www.npmjs.com/package/@gabryelesantoro/react-review-star/access"
+          else
+            echo "NPM_TOKEN is present; npm CLI will use it for registry.npmjs.org."
+          fi
+
+      - name: Run semantic-release
+        id: release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          # Used by scripts/publish-github-packages.sh for npm.pkg.github.com
+          # scripts/publish-github-packages.sh reads NODE_AUTH_TOKEN for npm.pkg.github.com (must be GitHub token)
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
+        run: npx semantic-release 2>&1 | tee semantic-release.log
+
+      - name: Report when nothing was published
+        if: success()
+        run: |
+          if grep -Fq "There are no relevant changes, so no new version is released." semantic-release.log; then
+            echo "::warning::No npm version bump and no tag: there were no releasable commits (feat/fix/perf/revert/breaking) since the last git tag. Use Conventional Commits on main, or merge commits that include them. Chore/docs-only changes do not trigger a release."
+            exit 0
+          fi
+          if grep -Fq "Published release" semantic-release.log; then
+            echo "Release job completed; check npm and GitHub Releases for the new version."
+          fi

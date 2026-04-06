@@ -37,6 +37,9 @@
   "peerDependencies": {
     "react": ">=17.0.0"
   },
+  "overrides": {
+    "picomatch": "^4.0.4"
+  },
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/commit-analyzer": "^13.0.1",
