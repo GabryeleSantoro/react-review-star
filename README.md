@@ -28,6 +28,17 @@ If a push did not start the workflow, open **Actions → Release → Run workflo
 
 Without one of these, `npm publish` will fail or never run a real release.
 
+#### Perché dopo il merge su `main` non vedo tag né pacchetto npm (IT)
+
+È **normale** che il workflow sia **verde** anche senza nuova versione: [semantic-release](https://semantic-release.gitbook.io/) in quel caso termina con successo e scrive nel log qualcosa come *«There are no relevant changes, so no new version is released»* — **nessun errore**, semplicemente **nessun commit “rilasciabile”** dall’ultimo tag.
+
+Serve almeno un commit in stile **Conventional Commits** dopo l’ultimo tag (`feat:`, `fix:`, `perf:`, `revert:` o breaking). Se mergi solo `chore:`, `docs:`, `ci:` ecc., **non** viene creata alcuna release.
+
+- **Merge con squash:** conta **solo** il messaggio del commit di squash (deve essere tipo `feat: ...`). I singoli commit su `dev` non restano nella storia.
+- **Merge classico (no squash):** conta la **serie di commit** portati su `main` (di solito quelli fatti su `dev`), non il messaggio tipo *Merge branch 'dev'…*. Servono `feat:` / `fix:` / … **dopo l’ultimo tag** in quella storia.
+
+Dopo ogni run, apri il **Job summary** in alto nel job (o il log **Run semantic-release**) per l’esito chiaro.
+
 ## Installation
 
 **From npm (default):**

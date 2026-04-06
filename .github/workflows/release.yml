@@ -53,15 +53,39 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           # scripts/publish-github-packages.sh reads NODE_AUTH_TOKEN for npm.pkg.github.com (must be GitHub token)
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Stable log lines for greps below (no ANSI)
+          FORCE_COLOR: "0"
         run: npx semantic-release 2>&1 | tee semantic-release.log
 
-      - name: Report when nothing was published
+      - name: Release outcome (log + Job Summary)
         if: success()
         run: |
+          SUMMARY="${GITHUB_STEP_SUMMARY:-/dev/null}"
+          echo "## Semantic-release outcome" >> "$SUMMARY"
+          echo "" >> "$SUMMARY"
+
           if grep -Fq "There are no relevant changes, so no new version is released." semantic-release.log; then
-            echo "::warning::No npm version bump and no tag: there were no releasable commits (feat/fix/perf/revert/breaking) since the last git tag. Use Conventional Commits on main, or merge commits that include them. Chore/docs-only changes do not trigger a release."
+            echo "::warning::No npm tag and no publish: no releasable commits (feat/fix/perf/revert/breaking) since the last git tag. A green job is normal here."
+            echo "### No new version (job still succeeded)" >> "$SUMMARY"
+            echo "" >> "$SUMMARY"
+            echo "semantic-release found **nothing to release**. That is why there is **no new tag** and **no npm package**, while the workflow stays **green**." >> "$SUMMARY"
+            echo "" >> "$SUMMARY"
+            echo "**What to do:** add at least one [Conventional Commit](https://www.conventionalcommits.org/) on \`main\` **after** the latest git tag, e.g. \`feat: ...\` or \`fix: ...\`. Only \`chore:\` / \`docs:\` / \`test:\` / … → **no** version bump." >> "$SUMMARY"
+            echo "" >> "$SUMMARY"
+            echo "- **Squash merge:** the squash message must be conventional (e.g. \`feat: add feature\`)." >> "$SUMMARY"
+            echo "- **Merge commit:** commits merged into \`main\` since the last tag must include \`feat:\`/\`fix:\`/…" >> "$SUMMARY"
+            echo "" >> "$SUMMARY"
+            echo "In the log **Run semantic-release**, search for: \`There are no relevant changes\`." >> "$SUMMARY"
             exit 0
           fi
+
           if grep -Fq "Published release" semantic-release.log; then
-            echo "Release job completed; check npm and GitHub Releases for the new version."
+            echo "::notice::A release was published — check npm and GitHub Releases for the new version."
+            echo "### New release published" >> "$SUMMARY"
+            echo "" >> "$SUMMARY"
+            echo "See the **Run semantic-release** log line starting with \`Published release\`." >> "$SUMMARY"
+          else
+            echo "### Check log manually" >> "$SUMMARY"
+            echo "" >> "$SUMMARY"
+            echo "Open **Run semantic-release** in this job." >> "$SUMMARY"
           fi
