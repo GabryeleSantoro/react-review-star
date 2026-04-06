@@ -4,19 +4,16 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch: # run manually from Actions if a push did not trigger release
+  workflow_dispatch:
 
 permissions:
   contents: write
   issues: write
   pull-requests: write
-  packages: write # GitHub Packages (npm.pkg.github.com)
-  id-token: write # npm provenance on registry.npmjs.org
+  id-token: write
 
 jobs:
   release:
-    # Skip only when the pushed tip commit is the semantic-release bot commit ([skip ci]).
-    # head_commit can be null on some push payloads; if so, still run (do not skip the whole job).
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.head_commit == null || !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: ubuntu-latest
     steps:
@@ -30,62 +27,19 @@ jobs:
         with:
           node-version: "lts/*"
           registry-url: https://registry.npmjs.org
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Install dependencies
         run: npm clean-install
 
-      - name: Explain npm auth (npmjs.org)
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          if [ -z "${NPM_TOKEN:-}" ]; then
-            echo "::notice::Secret NPM_TOKEN is empty. semantic-release will try OpenID Connect (Trusted Publishing) with npm. If publishing fails, create an npm **Automation** token and add it as NPM_TOKEN, or enable Trusted Publishers for this repo at https://www.npmjs.com/package/@gabryelesantoro/react-review-star/access"
-          else
-            echo "NPM_TOKEN is present; npm CLI will use it for registry.npmjs.org."
-          fi
+      - name: Build
+        run: npm run build
+
+      - name: Verify build output
+        run: ls -la dist/
 
       - name: Run semantic-release
-        id: release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          # scripts/publish-github-packages.sh reads NODE_AUTH_TOKEN for npm.pkg.github.com (must be GitHub token)
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Stable log lines for greps below (no ANSI)
-          FORCE_COLOR: "0"
-        run: npx semantic-release 2>&1 | tee semantic-release.log
-
-      - name: Release outcome (log + Job Summary)
-        if: success()
-        run: |
-          SUMMARY="${GITHUB_STEP_SUMMARY:-/dev/null}"
-          echo "## Semantic-release outcome" >> "$SUMMARY"
-          echo "" >> "$SUMMARY"
-
-          if grep -Fq "There are no relevant changes, so no new version is released." semantic-release.log; then
-            echo "::warning::No npm tag and no publish: no releasable commits (feat/fix/perf/revert/breaking) since the last git tag. A green job is normal here."
-            echo "### No new version (job still succeeded)" >> "$SUMMARY"
-            echo "" >> "$SUMMARY"
-            echo "semantic-release found **nothing to release**. That is why there is **no new tag** and **no npm package**, while the workflow stays **green**." >> "$SUMMARY"
-            echo "" >> "$SUMMARY"
-            echo "**What to do:** add at least one [Conventional Commit](https://www.conventionalcommits.org/) on \`main\` **after** the latest git tag, e.g. \`feat: ...\` or \`fix: ...\`. Only \`chore:\` / \`docs:\` / \`test:\` / … → **no** version bump." >> "$SUMMARY"
-            echo "" >> "$SUMMARY"
-            echo "- **Squash merge:** the squash message must be conventional (e.g. \`feat: add feature\`)." >> "$SUMMARY"
-            echo "- **Merge commit:** commits merged into \`main\` since the last tag must include \`feat:\`/\`fix:\`/…" >> "$SUMMARY"
-            echo "" >> "$SUMMARY"
-            echo "In the log **Run semantic-release**, search for: \`There are no relevant changes\`." >> "$SUMMARY"
-            exit 0
-          fi
-
-          if grep -Fq "Published release" semantic-release.log; then
-            echo "::notice::A release was published — check npm and GitHub Releases for the new version."
-            echo "### New release published" >> "$SUMMARY"
-            echo "" >> "$SUMMARY"
-            echo "See the **Run semantic-release** log line starting with \`Published release\`." >> "$SUMMARY"
-          else
-            echo "### Check log manually" >> "$SUMMARY"
-            echo "" >> "$SUMMARY"
-            echo "Open **Run semantic-release** in this job." >> "$SUMMARY"
-          fi
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npx semantic-release
