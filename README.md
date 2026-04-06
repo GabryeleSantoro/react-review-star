@@ -1,45 +1,28 @@
 # react-review-star
 
-This is a simple component to show a rating by using stars. The package is available for React.
+A small, accessible star rating component for React. It uses inline SVG (no icon font or extra icon packages), so your bundle stays lean.
 
 ## Installation
 
-Install the package using 
 ```bash
 npm install react-review-star
 ```
 
-#Requirements
-
-This package requires the installation of some FontAwesome libraries.
-
-```bash
-npm install @fortawesome/react-fontawesom @fortawesome/free-regular-svg-icons @fortawesome/free-solid-svg-icons
-```
+Requires **React 17+** as a peer dependency.
 
 ## Usage
 
-```Javascript
-
+```jsx
 import React from 'react';
 import { Stars } from 'react-review-star';
 
 function App() {
-
-  const [value,setValue] = React.useState(4);
-
-  React.useEffect(() => {
-
-    console.log('value ' + value);
-
-  },[value]);
+  const [value, setValue] = React.useState(4);
 
   return (
-    <>
-      <div>
-            <Stars value={value} onValueChange={setValue} />
-      </div>
-    </>
+    <div>
+      <Stars value={value} onValueChange={setValue} />
+    </div>
   );
 }
 
@@ -48,10 +31,21 @@ export default App;
 
 ## Props
 
-| Prop Name      | Values                      | Default  | Description                                                                                          |
-|:--------------:|:---------------------------|:--------:|:-----------------------------------------------------------------------------------------------------|
-| **Value**      | numbers                    | 0        | The value to display with the stars. Must be between 0 and 5. Floating point values are allowed.    |
-| **Color**      | string                     | #FFC308  | The color of the stars.                                                                              |
-| **onValueChange** | function                | null     | A function to update the selected rating value.                                                      |
-| **Size**       | string                     | '2x'     | The size of the stars. Default is '2x', with options: 'lg', '2x', '3x', '4x', '5x'.                |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `value` | `number` | — | Current rating from **0** to **5** (steps of **0.5**). Out-of-range values are clamped. |
+| `color` | `string` | `#ffc308` | Fill color for active segments. |
+| `onValueChange` | `(value: number) => void` | — | Called when the user picks a new rating. |
+| `size` | `'lg' \| '2x' \| '3x' \| '4x' \| '5x'` | `'2x'` | Visual size of each star. |
+| `className` | `string` | — | Optional class on the wrapper. |
+| `aria-label` | `string` | `'Rating'` | Label for the rating group (accessibility). |
 
+### Interaction
+
+- Click a star to set that whole-star value.
+- Click again on the same star when it is full to set a half-star for that position.
+- Click again when it is half to move to the next state (first star: half clears to 0).
+
+## Styling
+
+The root element has the class `stars`. Star color is driven by a CSS variable `--stars-fill` set from the `color` prop.

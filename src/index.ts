@@ -1,2 +1,2 @@
-export * from './Stars';
-export * from './types';
+export { Stars } from './Stars';
+export type { StarProps, StarSize } from './types';

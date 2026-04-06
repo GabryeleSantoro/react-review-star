@@ -1,71 +1,91 @@
-.icon-clickable {
-    display: inline-block;
-    cursor: pointer; /* Show pointer on hover */
-    transition: transform 0.2s ease; /* Smooth scaling transition */
-    cursor: pointer;
+.stars {
+  --stars-fill: #ffc308;
+  --stars-track: #b0b8c4;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2em;
+  line-height: 0;
+  vertical-align: middle;
 }
 
-.icon-clickable:hover {
-    transform: scale(1.2); /* Scale up on hover */
+.stars__btn {
+  appearance: none;
+  margin: 0;
+  padding: 0.12em;
+  border: none;
+  background: transparent;
+  color: var(--stars-fill);
+  cursor: pointer;
+  border-radius: 0.35em;
+  line-height: 0;
+  transition: transform 0.2s cubic-bezier(0.34, 1.45, 0.64, 1);
 }
 
-/* Keyframe animation for filling the star */
-@keyframes fillStar {
-    0% {
-        transform: scale(0);
-        opacity: 0;
-    }
-    50% {
-        transform: scale(1.2);
-        opacity: 1;
-    }
-    100% {
-        transform: scale(1);
-    }
+.stars__btn:focus-visible {
+  outline: 2px solid var(--stars-fill);
+  outline-offset: 2px;
 }
 
-/* Keyframe animation for emptying the star */
-@keyframes emptyStar {
-    0% {
-        transform: scale(1);
-        opacity: 0;
-    }
-    50% {
-        transform: scale(0.8);
-        opacity: 1;
-    }
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
+.stars__btn:hover:not(:disabled) {
+  transform: translateY(-2px);
 }
 
-/* Keyframe animation for half-filled star */
-@keyframes halfFillStar {
-    0% {
-        transform: scale(0);
-        opacity: 0;
-    }
-    50% {
-        transform: scale(0.8);
-        opacity: 1;
-    }
-    100% {
-        transform: scale(1);
-    }
+.stars__btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.94);
 }
 
-/* Apply animation for filled stars */
-.icon-clickable.filled {
-    animation: fillStar 0.5s forwards; /* Trigger fill animation */
+.stars__svg {
+  display: block;
+  overflow: visible;
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.08));
 }
 
-/* Apply animation for half-filled stars */
-.icon-clickable.half-filled {
-    animation: halfFillStar 0.5s forwards; /* Trigger half-fill animation */
+.stars__outline {
+  color: var(--stars-track);
+  vector-effect: non-scaling-stroke;
 }
 
-/* Apply animation for empty stars */
-.icon-clickable.empty {
-    animation: emptyStar 0.5s forwards; /* Trigger empty animation */
+.stars__fill {
+  color: var(--stars-fill);
+  transform-origin: center;
+  animation: stars-fill-in 0.38s cubic-bezier(0.34, 1.45, 0.64, 1) both;
+}
+
+.stars__fill--half {
+  animation-name: stars-fill-in-half;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stars__btn {
+    transition: none;
+  }
+
+  .stars__fill,
+  .stars__fill--half {
+    animation: none;
+  }
+}
+
+@keyframes stars-fill-in {
+  from {
+    transform: scale(0.35) rotate(-18deg);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes stars-fill-in-half {
+  from {
+    transform: scale(0.5) translateX(-18%);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1) translateX(0);
+    opacity: 1;
+  }
 }
