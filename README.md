@@ -28,9 +28,20 @@ If a push did not start the workflow, open **Actions → Release → Run workflo
 
 Without one of these, `npm publish` will fail or never run a real release.
 
+**If the workflow fails early** (red ❌) with **`EINVALIDNPMTOKEN`**, **`401 Unauthorized`** on `npm whoami`, or **`OIDC token exchange … package not found`**, the problem is **npm authentication**, not your commit message. semantic-release stops **before** it evaluates `feat:`/`fix:`. Fix it by either:
+
+1. **Automation token (classic)** on [npmjs.com](https://www.npmjs.com/) → Access Tokens → **Granular** or **Automation**, with permission to **write** the package `@gabryelesantoro/react-review-star`, then set repo secret **`NPM_TOKEN`** to that token value, or  
+2. **[Trusted publishing](https://docs.npmjs.com/trusted-publishers)** for that package on npm (connect this GitHub repo). Until the package exists on npm and OIDC is linked, you will see `404` on OIDC and must use (1).
+
+Until npm auth succeeds, you will **not** get a new tag or version, regardless of conventional commits.
+
 #### Perché dopo il merge su `main` non vedo tag né pacchetto npm (IT)
 
-È **normale** che il workflow sia **verde** anche senza nuova versione: [semantic-release](https://semantic-release.gitbook.io/) in quel caso termina con successo e scrive nel log qualcosa come *«There are no relevant changes, so no new version is released»* — **nessun errore**, semplicemente **nessun commit “rilasciabile”** dall’ultimo tag.
+Ci sono **due casi diversi**:
+
+1. **Workflow verde** ma nessun tag/npm: nel log compare *«There are no relevant changes»* — non ci sono commit `feat:`/`fix:`/… dall’ultimo tag (non è un problema di autenticazione).
+
+2. **Workflow rosso** con `Invalid npm token` / `401` / `OIDC … package not found`: **npm non è configurato** (token `NPM_TOKEN` mancante o non valido, oppure Trusted Publishing non collegato). semantic-release **si ferma prima** di guardare i commit: anche un `fix:` corretto **non** genera versione finché non risolvi l’auth su npm.
 
 Serve almeno un commit in stile **Conventional Commits** dopo l’ultimo tag (`feat:`, `fix:`, `perf:`, `revert:` o breaking). Se mergi solo `chore:`, `docs:`, `ci:` ecc., **non** viene creata alcuna release.
 

@@ -40,6 +40,11 @@
         "publishCmd": "sh scripts/publish-github-packages.sh"
       }
     ],
-    "@semantic-release/github"
+    [
+      "@semantic-release/github",
+      {
+        "labels": false
+      }
+    ]
   ]
 }
