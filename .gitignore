@@ -2,3 +2,6 @@
 /dist
 .env
 .DS_Store
+
+# App demo locale (non pushare)
+/playground

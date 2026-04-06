@@ -1,2 +1,3 @@
 export { Stars } from './Stars';
-export type { StarProps, StarSize } from './types';
+export { DEFAULT_STAR_PATH, DEFAULT_STAR_VIEW_BOX } from './types';
+export type { StarIconOptions, StarProps, StarSize } from './types';

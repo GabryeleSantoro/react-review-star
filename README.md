@@ -37,8 +37,40 @@ export default App;
 | `color` | `string` | `#ffc308` | Fill color for active segments. |
 | `onValueChange` | `(value: number) => void` | — | Called when the user picks a new rating. |
 | `size` | `'lg' \| '2x' \| '3x' \| '4x' \| '5x'` | `'2x'` | Visual size of each star. |
+| `gap` | `number \| string` | — | Space between icons: number = **px**, string = any CSS length (e.g. `"0.5rem"`). Sets `--stars-gap`. |
+| `icon` | `StarIconOptions` | — | Customize SVG shape, stroke, empty color, and half-star clip (see below). |
 | `className` | `string` | — | Optional class on the wrapper. |
 | `aria-label` | `string` | `'Rating'` | Label for the rating group (accessibility). |
+
+### `icon` options (`StarIconOptions`)
+
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `path` | `string` | built-in star | SVG path `d` (outline + fill use the same path). |
+| `viewBox` | `string` | `"0 0 20 20"` | Must match the coordinate system of `path`. |
+| `strokeWidth` | `number` | `1.25` | Outline stroke width in SVG units (empty / half outline). |
+| `emptyColor` | `string` | — | Color for unfilled outline; sets `--stars-track`. |
+| `halfWidthFraction` | `number` | `0.5` | Width fraction used for the half-filled clip (left side), between **0.02** and **1**. |
+
+The package exports **`DEFAULT_STAR_PATH`** and **`DEFAULT_STAR_VIEW_BOX`** so you can copy the default geometry or wrap it in your own assets.
+
+```jsx
+import { Stars, DEFAULT_STAR_PATH, DEFAULT_STAR_VIEW_BOX } from 'react-review-star';
+
+<Stars
+  value={value}
+  onValueChange={setValue}
+  color="#e11d48"
+  gap={10}
+  icon={{
+    path: DEFAULT_STAR_PATH,
+    viewBox: DEFAULT_STAR_VIEW_BOX,
+    strokeWidth: 1.5,
+    emptyColor: '#cbd5e1',
+    halfWidthFraction: 0.5,
+  }}
+/>
+```
 
 ### Interaction
 
@@ -48,4 +80,10 @@ export default App;
 
 ## Styling
 
-The root element has the class `stars`. Star color is driven by a CSS variable `--stars-fill` set from the `color` prop.
+The root element has the class `stars`. Useful CSS variables:
+
+- **`--stars-fill`** — from the `color` prop (active fill).
+- **`--stars-track`** — empty outline; default `#b0b8c4`, or set via `icon.emptyColor`.
+- **`--stars-gap`** — spacing between icons; default `0.2em`, or set via the `gap` prop.
+
+Remember to import the stylesheet: `import 'react-review-star/dist/index.css'`.

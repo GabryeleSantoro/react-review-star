@@ -18,7 +18,8 @@
     "url": "https://github.com/GabryeleSantoro/react-review-star.git"
   },
   "scripts": {
-    "build": "tsup"
+    "build": "tsup",
+    "playground": "npm run build && npm install --prefix playground && npm run dev --prefix playground"
   },
   "keywords": [
     "react",

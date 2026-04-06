@@ -1,9 +1,10 @@
 .stars {
   --stars-fill: #ffc308;
   --stars-track: #b0b8c4;
+  --stars-gap: 0.2em;
   display: inline-flex;
   align-items: center;
-  gap: 0.2em;
+  gap: var(--stars-gap);
   line-height: 0;
   vertical-align: middle;
 }

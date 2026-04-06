@@ -1,12 +1,14 @@
 import React, { useId, useMemo } from 'react';
-import type { StarProps, StarSize } from './types';
+import {
+  DEFAULT_STAR_PATH,
+  DEFAULT_STAR_VIEW_BOX,
+  type StarIconOptions,
+  type StarProps,
+  type StarSize,
+} from './types';
 import './Stars.css';
 
 const MAX = 5;
-
-/** Heroicons-style 20×20 star path */
-const STAR_PATH =
-  'M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z';
 
 const SIZE_PX: Record<StarSize, number> = {
   lg: 20,
@@ -19,6 +21,41 @@ const SIZE_PX: Record<StarSize, number> = {
 function clampValue(value: number): number {
   if (Number.isNaN(value)) return 0;
   return Math.min(MAX, Math.max(0, value));
+}
+
+function parseViewBox(viewBox: string): { x: number; y: number; w: number; h: number } {
+  const parts = viewBox
+    .trim()
+    .split(/[\s,]+/)
+    .map(Number);
+  if (parts.length !== 4 || parts.some((n) => Number.isNaN(n)) || parts[2] <= 0 || parts[3] <= 0) {
+    const fb = parseViewBox(DEFAULT_STAR_VIEW_BOX);
+    return fb;
+  }
+  return { x: parts[0], y: parts[1], w: parts[2], h: parts[3] };
+}
+
+function clampHalfFraction(n: number | undefined): number {
+  if (n == null || Number.isNaN(n)) return 0.5;
+  return Math.min(1, Math.max(0.02, n));
+}
+
+interface ResolvedIcon {
+  path: string;
+  viewBox: string;
+  strokeWidth: number;
+  emptyColor: string | undefined;
+  halfWidthFraction: number;
+}
+
+function resolveIcon(icon: StarIconOptions | undefined): ResolvedIcon {
+  return {
+    path: icon?.path ?? DEFAULT_STAR_PATH,
+    viewBox: icon?.viewBox ?? DEFAULT_STAR_VIEW_BOX,
+    strokeWidth: icon?.strokeWidth ?? 1.25,
+    emptyColor: icon?.emptyColor,
+    halfWidthFraction: clampHalfFraction(icon?.halfWidthFraction),
+  };
 }
 
 function handleStarClick(value: number, index: number, onValueChange: (v: number) => void) {
@@ -45,19 +82,29 @@ export function Stars({
   onValueChange,
   className,
   'aria-label': ariaLabel = 'Rating',
+  gap,
+  icon: iconProp,
 }: StarProps): React.ReactElement {
   const value = clampValue(rawValue);
   const baseId = useId().replace(/:/g, '');
   const sizeKey: StarSize = size in SIZE_PX ? size : '2x';
   const px = SIZE_PX[sizeKey];
+  const icon = resolveIcon(iconProp);
+  const vb = useMemo(() => parseViewBox(icon.viewBox), [icon.viewBox]);
 
-  const style = useMemo(
-    () =>
-      ({
-        '--stars-fill': color,
-      }) as React.CSSProperties,
-    [color],
-  );
+  const style = useMemo(() => {
+    const s: React.CSSProperties = { '--stars-fill': color } as React.CSSProperties;
+    if (icon.emptyColor != null) {
+      (s as React.CSSProperties & { '--stars-track': string })['--stars-track'] = icon.emptyColor;
+    }
+    if (gap != null) {
+      (s as React.CSSProperties & { '--stars-gap': string })['--stars-gap'] =
+        typeof gap === 'number' ? `${gap}px` : gap;
+    }
+    return s;
+  }, [color, icon.emptyColor, gap]);
+
+  const clipW = vb.w * icon.halfWidthFraction;
 
   return (
     <div
@@ -70,6 +117,8 @@ export function Stars({
         const delta = value - index;
         const state = delta >= 1 ? 'full' : delta >= 0.5 ? 'half' : 'empty';
         const clipId = `${baseId}-half-${index}`;
+        const path = icon.path;
+        const sw = icon.strokeWidth;
 
         return (
           <button
@@ -83,46 +132,40 @@ export function Stars({
               className="stars__svg"
               width={px}
               height={px}
-              viewBox="0 0 20 20"
+              viewBox={icon.viewBox}
               aria-hidden
             >
               <defs>
                 <clipPath id={clipId}>
-                  <rect x="0" y="0" width="10" height="20" />
+                  <rect x={vb.x} y={vb.y} width={clipW} height={vb.h} />
                 </clipPath>
               </defs>
 
               {state === 'empty' && (
                 <path
                   className="stars__outline"
-                  d={STAR_PATH}
+                  d={path}
                   fill="none"
                   stroke="currentColor"
-                  strokeWidth={1.25}
+                  strokeWidth={sw}
                   strokeLinejoin="round"
                 />
               )}
 
-              {state === 'full' && (
-                <path className="stars__fill" d={STAR_PATH} fill="currentColor" />
-              )}
+              {state === 'full' && <path className="stars__fill" d={path} fill="currentColor" />}
 
               {state === 'half' && (
                 <>
                   <path
                     className="stars__outline"
-                    d={STAR_PATH}
+                    d={path}
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth={1.25}
+                    strokeWidth={sw}
                     strokeLinejoin="round"
                   />
                   <g clipPath={`url(#${clipId})`}>
-                    <path
-                      className="stars__fill stars__fill--half"
-                      d={STAR_PATH}
-                      fill="currentColor"
-                    />
+                    <path className="stars__fill stars__fill--half" d={path} fill="currentColor" />
                   </g>
                 </>
               )}
