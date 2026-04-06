@@ -35,12 +35,6 @@
       }
     ],
     [
-      "@semantic-release/exec",
-      {
-        "publishCmd": "sh scripts/publish-github-packages.sh"
-      }
-    ],
-    [
       "@semantic-release/github",
       {
         "labels": false,
