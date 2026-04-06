@@ -1,7 +1,7 @@
 {
   "name": "@gabryelesantoro/react-review-star",
   "description": "A lightweight, accessible star rating component for React",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
