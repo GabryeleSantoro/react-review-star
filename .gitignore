@@ -2,6 +2,7 @@
 /dist
 .env
 .DS_Store
+semantic-release.log
 
 # App demo locale (non pushare)
 /playground

@@ -19,6 +19,15 @@ So a merge from `dev` → `main` **does nothing** if every commit on `dev` since
 
 If a push did not start the workflow, open **Actions → Release → Run workflow**. For failures, open the run log; common causes are missing `NPM_TOKEN` or no `feat`/`fix`/… commits in range.
 
+**The job can be green but publish nothing.** Expand **Run semantic-release** and search for `There are no relevant changes` — that means no new semver and no npm tarball (no `feat`/`fix`/`perf`/`revert` since the last tag). The workflow also prints a **warning** in that case.
+
+**Publishing to npm** requires either:
+
+- Repository secret **`NPM_TOKEN`**: create an [npm automation token](https://docs.npmjs.com/about-access-tokens) and add it under **Settings → Secrets and variables → Actions**, or  
+- **Trusted publishing (OIDC)** on npm linked to this GitHub repo (then `NPM_TOKEN` can be empty; `id-token: write` is already set in the workflow).
+
+Without one of these, `npm publish` will fail or never run a real release.
+
 ## Installation
 
 **From npm (default):**
